@@ -8,11 +8,6 @@
 
 // =========================================== Imports ========================================== \\
 
-pub mod prelude {
-    pub use crate::Polling;
-    pub use crate::FuturePollingExt as _;
-}
-
 use core::future::Future;
 use core::mem;
 use core::pin::Pin;
