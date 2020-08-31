@@ -1,0 +1,13 @@
+#+OPTIONS: toc:nil
+
+* ~futures-polling~
+[[https://github.com/r3v2d0g/futures-polling/blob/main/LICENSE.txt][https://img.shields.io/crates/l/polling.svg]]
+[[https://crates.io/crates/futures-polling][https://img.shields.io/crates/v/polling.svg]]
+[[https://docs.rs/futures-polling][https://docs.rs/polling/badge.svg]]
+
+** License
+#+BEGIN_QUOTE
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#+END_QUOTE
