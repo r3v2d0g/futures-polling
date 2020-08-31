@@ -1,9 +1,9 @@
 #+OPTIONS: toc:nil
 
 * ~futures-polling~
-[[https://github.com/r3v2d0g/futures-polling/blob/main/LICENSE.txt][https://img.shields.io/crates/l/polling.svg]]
-[[https://crates.io/crates/futures-polling][https://img.shields.io/crates/v/polling.svg]]
-[[https://docs.rs/futures-polling][https://docs.rs/polling/badge.svg]]
+[[https://github.com/r3v2d0g/futures-polling/blob/main/LICENSE.txt][https://img.shields.io/crates/l/futures-polling.svg]]
+[[https://crates.io/crates/futures-polling][https://img.shields.io/crates/v/futures-polling.svg]]
+[[https://docs.rs/futures-polling][https://docs.rs/futures-polling/badge.svg]]
 
 ** License
 #+BEGIN_QUOTE
