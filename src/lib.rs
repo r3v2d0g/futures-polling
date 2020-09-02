@@ -24,7 +24,7 @@ pub enum Polling<Fut: Future> {
 
 // ========================================= Interfaces ========================================= \\
 
-/// Extension trait for easily creating [`Polling`] from a [`Future`].
+/// Extension trait to easily convert a [`Future`] into a [`Polling`].
 pub trait FuturePollingExt: Future {
     /// Returns [`Polling::Pending(self)`], consuming `self`.
     ///
@@ -57,8 +57,8 @@ impl<Fut: Future> FuturePollingExt for Fut {}
 impl<Fut: Future> Polling<Fut> {
     // ===================================== Destructors ==================================== \\
 
-    /// Converts [`Polling::Ready(out)`] into `Some(out)`, or returns `None` otherwise, consuming
-    /// `self`.
+    /// Converts [`Polling::Ready(out)`] into [`Some(out)`], or returns [`None`] otherwise,
+    /// consuming `self`.
     ///
     /// ## Example
     ///
@@ -77,6 +77,7 @@ impl<Fut: Future> Polling<Fut> {
     /// ```
     ///
     /// [`Polling::Ready(out)`]: Polling::Ready
+    /// [`Some(out)`]: core::option::Option::Some
     pub fn ready(self) -> Option<Fut::Output> {
         if let Polling::Ready(out) = self {
             Some(out)
@@ -85,8 +86,8 @@ impl<Fut: Future> Polling<Fut> {
         }
     }
 
-    /// Converts [`Polling::Pending(fut)`] into `Some(fut)`, or returns `None` otherwise, consuming
-    /// `self`.
+    /// Converts [`Polling::Pending(fut)`] into [`Some(fut)`], or returns [`None`] otherwise,
+    /// consuming `self`.
     ///
     /// ## Example
     ///
@@ -107,6 +108,7 @@ impl<Fut: Future> Polling<Fut> {
     /// ```
     ///
     /// [`Polling::Pending(fut)`]: Polling::Pending
+    /// [`Some(fut)`]: core::option::Option::Some
     pub fn pending(self) -> Option<Fut> {
         if let Polling::Pending(fut) = self {
             Some(fut)
@@ -139,7 +141,6 @@ impl<Fut: Future> Polling<Fut> {
     ///
     /// [`Polling::Ready(out)`]: Polling::Ready
     /// [`Poll::Ready(out)`]: core::task::Poll::Ready
-    /// [`Poll::Pending`]: core::task::Poll::Pending
     pub fn into_poll(self) -> Poll<Fut::Output> {
         if let Polling::Ready(out) = self {
             Poll::Ready(out)
@@ -150,7 +151,7 @@ impl<Fut: Future> Polling<Fut> {
 
     // ======================================== Read ======================================== \\
 
-    /// Returns `true` is `self` is [`Polling::Ready(_)`].
+    /// Returns [`true`] is `self` is [`Polling::Ready(_)`].
     ///
     /// ## Example
     ///
@@ -177,7 +178,7 @@ impl<Fut: Future> Polling<Fut> {
         }
     }
 
-    /// Returns `true` is `self` is [`Polling::Pending(_)`].
+    /// Returns [`true`] is `self` is [`Polling::Pending(_)`].
     ///
     /// ## Example
     ///
@@ -204,7 +205,7 @@ impl<Fut: Future> Polling<Fut> {
         }
     }
 
-    /// Returns `true` is `self` is [`Polling::Done`].
+    /// Returns [`true`] is `self` is [`Polling::Done`].
     ///
     /// ## Example
     ///
@@ -221,8 +222,6 @@ impl<Fut: Future> Polling<Fut> {
     /// let polling = Polling::<Ready<i32>>::Done;
     /// assert_eq!(polling.is_done(), true);
     /// ```
-    ///
-    /// [`Polling::Done`]: Polling::Done
     pub fn is_done(&self) -> bool {
         if let Polling::Done = self {
             true
@@ -234,7 +233,7 @@ impl<Fut: Future> Polling<Fut> {
     /// Converts [`Polling::Ready(out)`] into [`Poll::Ready(&out)`], or returns [`Poll::Pending`]
     /// otherwise, without consuming `self`.
     ///
-    /// Note that `Polling::Done` will also be converted to `Poll::Pending`.
+    /// Note that [`Polling::Done`] will also be converted to [`Poll::Pending`].
     ///
     /// ## Example
     ///
@@ -255,7 +254,6 @@ impl<Fut: Future> Polling<Fut> {
     ///
     /// [`Polling::Ready(out)`]: Polling::Ready
     /// [`Poll::Ready(&out)`]: core::task::Poll::Ready
-    /// [`Poll::Pending`]: core::task::Poll::Pending
     pub fn as_poll(&self) -> Poll<&Fut::Output> {
         if let Polling::Ready(out) = &self {
             Poll::Ready(out)
@@ -265,6 +263,10 @@ impl<Fut: Future> Polling<Fut> {
     }
 
     // ===================================== Read+Write ===================================== \\
+
+    pub fn replace(&mut self, with: Self) -> Self {
+        mem::replace(self, with)
+    }
 
     /// Takes the output or future out of `self`, leaving [`Polling::Done`] in its place.
     ///
@@ -293,7 +295,7 @@ impl<Fut: Future> Polling<Fut> {
     }
 
     /// If `self` is [`Polling::Ready(out)`], replaces it with [`Polling::Done`] and returns
-    /// `Some(out)`, or returns `None` otherwise.
+    /// [`Some(out)`], or returns [`None`] otherwise.
     ///
     /// ## Example
     ///
@@ -315,6 +317,9 @@ impl<Fut: Future> Polling<Fut> {
     /// assert_eq!(polling.take_ready(), None);
     /// assert_eq!(polling.is_done(), true);
     /// ```
+    ///
+    /// [`Polling::Ready(out)`]: Polling::Ready
+    /// [`Some(out)`]: core::option::Option::Some
     pub fn take_ready(&mut self) -> Option<Fut::Output> {
         if self.is_ready() {
             self.take().ready()
@@ -324,7 +329,7 @@ impl<Fut: Future> Polling<Fut> {
     }
 
     /// If `self` is [`Polling::Pending(fut)`], replaces it with [`Polling::Done`] and returns
-    /// `Some(fut)`, or returns `None` otherwise.
+    /// [`Some(fut)`], or returns [`None`] otherwise.
     ///
     /// ## Example
     ///
@@ -346,6 +351,9 @@ impl<Fut: Future> Polling<Fut> {
     /// assert_eq!(polling.take_pending().is_some(), false);
     /// assert_eq!(polling.is_done(), true);
     /// ```
+    ///
+    /// [`Polling::Pending(fut)`]: Polling::Pending
+    /// [`Some(fut)`]: core::option::Option::Some
     pub fn take_pending(&mut self) -> Option<Fut> {
         if self.is_pending() {
             self.take().pending()
@@ -355,7 +363,7 @@ impl<Fut: Future> Polling<Fut> {
     }
 
     /// If `self` is [`Polling::Ready(out)`], replaces it with [`Polling::Done`] and returns
-    /// `Some(out)`, or returns `None` otherwise.
+    /// [`Some(out)`], or returns [`None`] otherwise.
     ///
     /// ## Example
     ///
@@ -378,6 +386,9 @@ impl<Fut: Future> Polling<Fut> {
     /// assert_eq!(polling.take_poll(), Poll::Pending);
     /// assert_eq!(polling.is_done(), true);
     /// ```
+    ///
+    /// [`Polling::Ready(out)`]: Polling::Ready
+    /// [`Some(out)`]: core::option::Option::Some
     pub fn take_poll(&mut self) -> Poll<Fut::Output> {
         if self.is_ready() {
             self.take().into_poll()
@@ -417,6 +428,12 @@ impl<Fut: Future> Polling<Fut> {
     /// #
     /// # });
     /// ```
+    ///
+    /// [`Polling::Pending(fut)`]: Polling::Pending
+    /// [polls]: core::future::Future::poll
+    /// [output]: core::future::Future::Output
+    /// [`Polling::Ready(out)`]: Polling::Ready
+    /// [`Poll::Ready(out)`]: core::task::Poll::Ready
     pub async fn poll_once(&mut self) -> Poll<Fut::Output> {
         if self.is_ready() {
             return self.take().into_poll();
@@ -433,11 +450,88 @@ impl<Fut: Future> Polling<Fut> {
 
             fn poll(self: Pin<&mut Self>, ctx: &mut Context) -> Poll<Self::Output> {
                 let this = unsafe { self.get_unchecked_mut() };
-                Poll::Ready(unsafe { Pin::new_unchecked(&mut *this.polling) }.poll(ctx))
+                if let Polling::Pending(fut) = this.polling {
+                    let poll = unsafe { Pin::new_unchecked(fut) }.poll(ctx);
+                    if poll.is_ready() {
+                        this.polling.take();
+                    }
+
+                    Poll::Ready(poll)
+                } else {
+                    unreachable!();
+                }
             }
         }
 
         PollOnce { polling: self }.await
+    }
+
+    /// If `self` is [`Polling::Pending(fut)`], [polls] `fut` once, replacing `self` with
+    /// [`Polling::Ready(out)`] if the future returns [`Poll::Ready(out)`], and returns `self`.
+    ///
+    /// If `self` is [`Polling::Ready(_)`], returns `self`.
+    ///
+    /// Panics if `self` is [`Polling::Done`].
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use core::task::Poll;
+    /// use futures_lite::future::{self, Pending, Ready};
+    /// use futures_polling::Polling;
+    ///
+    /// # future::block_on(async {
+    /// #
+    /// let mut polling = Polling::<Ready<i32>>::Ready(42);
+    /// polling.polling_once().await;
+    /// assert_eq!(polling.take_poll(), Poll::Ready(42));
+    ///
+    /// let mut polling = Polling::<Ready<i32>>::Pending(future::ready(42));
+    /// polling.polling_once().await;
+    /// assert_eq!(polling.take_poll(), Poll::Ready(42));
+    ///
+    /// let mut polling = Polling::<Pending<i32>>::Pending(future::pending());
+    /// polling.polling_once().await;
+    /// assert_eq!(polling.is_pending(), true);
+    /// #
+    /// # });
+    /// ```
+    ///
+    /// [`Polling::Pending(fut)`]: Polling::Pending
+    /// [polls]: core::future::Future::poll
+    /// [`Polling::Ready(out)`]: Polling::Ready
+    /// [`Poll::Ready(out)`]: core::task::Poll::Ready
+    /// [`Polling::Ready(_)`]: Polling::Ready
+    pub async fn polling_once(&mut self) -> &mut Self {
+        if self.is_ready() {
+            return self;
+        } else if self.is_done() {
+            panic!("output already extracted");
+        }
+
+        struct PollingOnce<'polling, Fut: Future> {
+            polling: &'polling mut Polling<Fut>,
+        }
+
+        impl<Fut: Future> Future for PollingOnce<'_, Fut> {
+            type Output = ();
+
+            fn poll(self: Pin<&mut Self>, ctx: &mut Context) -> Poll<Self::Output> {
+                let this = unsafe { self.get_unchecked_mut() };
+                if let Polling::Pending(fut) = this.polling {
+                    if let Poll::Ready(out) = unsafe { Pin::new_unchecked(fut) }.poll(ctx) {
+                        this.polling.replace(Polling::Ready(out));
+                    }
+
+                    Poll::Ready(())
+                } else {
+                    unreachable!();
+                }
+            }
+        }
+
+        PollingOnce { polling: self }.await;
+        self
     }
 }
 
