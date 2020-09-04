@@ -1,7 +1,7 @@
 [package]
 name = "futures-polling"
 description = "An enum similar to Poll, but containing a future in its Pending variant"
-version = "0.1.0"
+version = "0.1.1"
 homepage = "https://github.com/r3v2d0g/futures-polling"
 repository = "https://git.r3vd5u3d.network/~r3v2d0g/futures-polling"
 documentation = "https://docs.rs/futures-polling"
