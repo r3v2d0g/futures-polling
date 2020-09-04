@@ -6,6 +6,37 @@
  *                                                                                                *
  **************************************************************************************************/
 
+// ======================================== Documentation ======================================= \\
+
+//! An enum similar to [`Poll`], but containing a [future] in its `Pending` variant.
+//!
+//! ## Example
+//!
+//! ```rust
+//! use futures_lite::future;
+//! use futures_polling::{FuturePollingExt, Polling};
+//!
+//! # future::block_on(async {
+//! #
+//! let mut polling = async {
+//!     future::yield_now().await;
+//!     42
+//! }.polling();
+//!
+//! assert_eq!(polling.is_pending(), true);
+//!
+//! // Poll just once.
+//! polling.polling_once().await;
+//! assert_eq!(polling.is_pending(), true);
+//!
+//! // Poll until the inner future is ready.
+//! assert_eq!(polling.await, 42);
+//! #
+//! # });
+//! ```
+//!
+//! [future]: core::future::Future
+
 // =========================================== Imports ========================================== \\
 
 use core::future::Future;
