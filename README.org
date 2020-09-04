@@ -1,6 +1,6 @@
 #+OPTIONS: toc:nil
 
-* ~futures-polling~
+* An enum similar to Poll, but containing a future in its Pending variant
 [[https://github.com/r3v2d0g/futures-polling/blob/main/LICENSE.txt][https://img.shields.io/crates/l/futures-polling.svg]]
 [[https://crates.io/crates/futures-polling][https://img.shields.io/crates/v/futures-polling.svg]]
 [[https://docs.rs/futures-polling][https://docs.rs/futures-polling/badge.svg]]
