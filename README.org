@@ -5,6 +5,26 @@
 [[https://crates.io/crates/futures-polling][https://img.shields.io/crates/v/futures-polling.svg]]
 [[https://docs.rs/futures-polling][https://docs.rs/futures-polling/badge.svg]]
 
+** Example
+#+BEGIN_SRC rust
+use futures_lite::future;
+use futures_polling::{FuturePollingExt, Polling};
+
+let mut polling = async {
+    future::yield_now().await;
+    42
+}.polling();
+
+assert_eq!(polling.is_pending(), true);
+
+// Poll just once.
+polling.polling_once().await;
+assert_eq!(polling.is_pending(), true);
+
+// Poll until the inner future is ready.
+assert_eq!(polling.await, 42);
+#+END_SRC
+
 ** License
 #+BEGIN_QUOTE
 This Source Code Form is subject to the terms of the Mozilla Public
