@@ -130,6 +130,7 @@ pub enum Polling<Fut: Future> {
     /// ```
     ///
     /// [future]: core::future::Future
+    /// [output]: core::future::Future::Output
     /// [extracted]: Polling::take_ready()
     Done,
 }
@@ -170,7 +171,7 @@ impl<Fut: Future> Polling<Fut> {
     // ===================================== Destructors ==================================== \\
 
     /// |         `self`        |    return   |
-    /// |-----------------------|-------------|
+    /// |:---------------------:|:-----------:|
     /// | `Polling::Ready(out)` | `Some(out)` |
     /// | `Polling::Pending(_)` | `None`      |
     /// | `Polling::Done`       | `None`      |
@@ -204,7 +205,7 @@ impl<Fut: Future> Polling<Fut> {
     }
 
     /// |          `self`         |    return   |
-    /// |-------------------------|-------------|
+    /// |:-----------------------:|:-----------:|
     /// | `Polling::Ready(_)`     | `None`      |
     /// | `Polling::Pending(fut)` | `Some(fut)` |
     /// | `Polling::Done`         | `None`      |
@@ -240,7 +241,7 @@ impl<Fut: Future> Polling<Fut> {
     }
 
     /// |         `self`        |       return       |
-    /// |-----------------------|--------------------|
+    /// |:---------------------:|:------------------:|
     /// | `Polling::Ready(out)` | `Poll::Ready(out)` |
     /// | `Polling::Pending(_)` | `Poll::Pending`    |
     /// | `Polling::Done`       | `Poll::Pending`    |
@@ -356,7 +357,7 @@ impl<Fut: Future> Polling<Fut> {
     }
 
     /// |        `&self`        |    return    |
-    /// |-----------------------|--------------|
+    /// |:---------------------:|:------------:|
     /// | `Polling::Ready(out)` | `Some(&out)` |
     /// | `Polling::Pending(_)` | `None`       |
     /// | `Polling::Done`       | `None`       |
@@ -390,7 +391,7 @@ impl<Fut: Future> Polling<Fut> {
     }
 
     /// |         `&self`         |    return    |
-    /// |-------------------------|--------------|
+    /// |:-----------------------:|:------------:|
     /// | `Polling::Ready(_)`     | `None`       |
     /// | `Polling::Pending(fut)` | `Some(&fut)` |
     /// | `Polling::Done`         | `None`       |
@@ -424,7 +425,7 @@ impl<Fut: Future> Polling<Fut> {
     }
 
     /// |         `&self`       |        return       |
-    /// |-----------------------|---------------------|
+    /// |:---------------------:|:-------------------:|
     /// | `Polling::Ready(out)` | `Poll::Ready(&out)` |
     /// | `Polling::Pending(_)` | `Poll::Pending`     |
     /// | `Polling::Done`       | `Poll::Pending`     |
@@ -459,7 +460,7 @@ impl<Fut: Future> Polling<Fut> {
     }
 
     /// |      `&mut self`      |      return      |
-    /// |-----------------------|------------------|
+    /// |:---------------------:|:----------------:|
     /// | `Polling::Ready(out)` | `Some(&mut out)` |
     /// | `Polling::Pending(_)` | `None`           |
     /// | `Polling::Done`       | `None`           |
@@ -499,7 +500,7 @@ impl<Fut: Future> Polling<Fut> {
     }
 
     /// |       `&mut self`       |      return      |
-    /// |-------------------------|------------------|
+    /// |:-----------------------:|:----------------:|
     /// | `Polling::Ready(_)`     | `None`           |
     /// | `Polling::Pending(fut)` | `Some(&mut fut)` |
     /// | `Polling::Done`         | `None`           |
@@ -535,7 +536,7 @@ impl<Fut: Future> Polling<Fut> {
     }
 
     /// |       `&mut self`     |          return         |
-    /// |-----------------------|-------------------------|
+    /// |:---------------------:|:-----------------------:|
     /// | `Polling::Ready(out)` | `Poll::Ready(&mut out)` |
     /// | `Polling::Pending(_)` | `Poll::Pending`         |
     /// | `Polling::Done`       | `Poll::Pending`         |
@@ -623,7 +624,7 @@ impl<Fut: Future> Polling<Fut> {
     }
 
     /// |       `&mut self`       |     new `self` value    |    return   |
-    /// |-------------------------|-------------------------|-------------|
+    /// |:-----------------------:|:-----------------------:|:-----------:|
     /// | `Polling::Ready(out)`   | `Polling::Done`         | `Some(out)` |
     /// | `Polling::Pending(fut)` | `Polling::Pending(fut)` | `None`      |
     /// | `Polling::Done`         | `Polling::Done`         | `None`      |
@@ -660,7 +661,7 @@ impl<Fut: Future> Polling<Fut> {
     }
 
     /// |       `&mut self`       |    new `self` value   |    return   |
-    /// |-------------------------|-----------------------|-------------|
+    /// |:-----------------------:|:---------------------:|:-----------:|
     /// | `Polling::Ready(out)`   | `Polling::Ready(out)` | `None`      |
     /// | `Polling::Pending(fut)` | `Polling::Done`       | `Some(fut)` |
     /// | `Polling::Done`         | `Polling::Done`       | `None`      |
@@ -697,7 +698,7 @@ impl<Fut: Future> Polling<Fut> {
     }
 
     /// |       `&mut self`       |     new `self` value    |       return       |
-    /// |-------------------------|-------------------------|--------------------|
+    /// |:-----------------------:|:-----------------------:|:------------------:|
     /// | `Polling::Ready(out)`   | `Polling::Done`         | `Poll::Ready(out)` |
     /// | `Polling::Pending(fut)` | `Polling::Pending(fut)` | `Poll::Pending`    |
     /// | `Polling::Done`         | `Polling::Done`         | `Poll::Pending`    |
@@ -735,7 +736,7 @@ impl<Fut: Future> Polling<Fut> {
     }
 
     /// |       `&mut self`       |    `fut.poll(_)`   |     new `self` value    |       return       |
-    /// |-------------------------|--------------------|-------------------------|--------------------|
+    /// |:-----------------------:|:------------------:|:-----------------------:|:------------------:|
     /// | `Polling::Ready(out)`   |          x         | `Polling::Done`         | `Poll::Ready(out)` |
     /// | `Polling::Pending(fut)` | `Poll::Ready(out)` | `Polling::Done`         | `Poll::Ready(out)` |
     /// | `Polling::Pending(fut)` | `Poll::Pending`    | `Polling::Pending(fut)` | `Poll::Pending`    |
@@ -776,7 +777,7 @@ impl<Fut: Future> Polling<Fut> {
     }
 
     /// |       `&mut self`       |    `fut.poll(_)`   |     new `self` value    |
-    /// |-------------------------|--------------------|-------------------------|
+    /// |:-----------------------:|:------------------:|:-----------------------:|
     /// | `Polling::Ready(out)`   |          x         | `Polling::Ready(out)`   |
     /// | `Polling::Pending(fut)` | `Poll::Ready(out)` | `Polling::Ready(out)`   |
     /// | `Polling::Pending(fut)` | `Poll::Pending`    | `Polling::Pending(fut)` |
@@ -848,7 +849,7 @@ impl<T, E, Fut: Future<Output = Result<T, E>>> Polling<Fut> {
     // ===================================== Destructors ==================================== \\
 
     /// |           `self`           |     return     |
-    /// |----------------------------|----------------|
+    /// |:--------------------------:|:--------------:|
     /// | `Polling::Ready(Ok(ok))`   | `Ok(Some(ok))` |
     /// | `Polling::Ready(Err(err))` | `Err(err)`     |
     /// | `Polling::Pending(_)`      | `Ok(None)`     |
@@ -880,7 +881,7 @@ impl<T, E, Fut: Future<Output = Result<T, E>>> Polling<Fut> {
     }
 
     /// |           `self`           |         return        |
-    /// |----------------------------|-----------------------|
+    /// |:--------------------------:|:---------------------:|
     /// | `Polling::Ready(Ok(ok))`   | `Ok(Poll::Ready(ok))` |
     /// | `Polling::Ready(Err(err))` | `Err(err)`            |
     /// | `Polling::Pending(_)`      | `Ok(Poll::Pending)`   |
@@ -919,7 +920,7 @@ impl<T, E, Fut: Future<Output = Result<T, E>>> Polling<Fut> {
     // ======================================== Read ======================================== \\
 
     /// |          `&self`           |      return     |
-    /// |----------------------------|-----------------|
+    /// |:--------------------------:|:---------------:|
     /// | `Polling::Ready(Ok(ok))`   | `Ok(Some(&ok))` |
     /// | `Polling::Ready(Err(Err))` | `Err(&err)`     |
     /// | `Polling::Pending(_)`      | `Ok(None)`      |
@@ -951,7 +952,7 @@ impl<T, E, Fut: Future<Output = Result<T, E>>> Polling<Fut> {
     }
 
     /// |          `&self`           |         return         |
-    /// |----------------------------|------------------------|
+    /// |:--------------------------:|:----------------------:|
     /// | `Polling::Ready(Ok(ok))`   | `Ok(Poll::Ready(&ok))` |
     /// | `Polling::Ready(Err(Err))` | `Err(&mut err)`        |
     /// | `Polling::Pending(_)`      | `Ok(Poll::Pending)`    |
@@ -988,7 +989,7 @@ impl<T, E, Fut: Future<Output = Result<T, E>>> Polling<Fut> {
     }
 
     /// |        `&mut self`         |        return       |
-    /// |----------------------------|---------------------|
+    /// |:--------------------------:|:-------------------:|
     /// | `Polling::Ready(Ok(ok))`   | `Ok(Some(&mut ok))` |
     /// | `Polling::Ready(Err(Err))` | `Err(&mut err)`     |
     /// | `Polling::Pending(_)`      | `Ok(None)`          |
@@ -1032,7 +1033,7 @@ impl<T, E, Fut: Future<Output = Result<T, E>>> Polling<Fut> {
     }
 
     /// |        `&mut self`         |           return           |
-    /// |----------------------------|----------------------------|
+    /// |:--------------------------:|:--------------------------:|
     /// | `Polling::Ready(Ok(ok))`   | `Ok(Poll::Ready(&mut ok))` |
     /// | `Polling::Ready(Err(Err))` | `Err(&mut err)`            |
     /// | `Polling::Pending(_)`      | `Ok(Poll::Pending)`        |
@@ -1083,7 +1084,7 @@ impl<T, E, Fut: Future<Output = Result<T, E>>> Polling<Fut> {
     // ===================================== Read+Write ===================================== \\
 
     /// |         `&mut self`        |     new `self` value    |     return     |
-    /// |----------------------------|-------------------------|----------------|
+    /// |:--------------------------:|:-----------------------:|:--------------:|
     /// | `Polling::Ready(Ok(ok))`   | `Polling::Done`         | `Ok(Some(ok))` |
     /// | `Polling::Ready(Err(err))` | `Polling::Done`         | `Err(err)`     |
     /// | `Polling::Pending(fut)`    | `Polling::Pending(fut)` | `Ok(None)`     |
@@ -1117,7 +1118,7 @@ impl<T, E, Fut: Future<Output = Result<T, E>>> Polling<Fut> {
     }
 
     /// |         `&mut self`        |     new `self` value    |         return        |
-    /// |----------------------------|-------------------------|-----------------------|
+    /// |:--------------------------:|:-----------------------:|:---------------------:|
     /// | `Polling::Ready(Ok(ok))`   | `Polling::Done`         | `Ok(Poll::Ready(ok))` |
     /// | `Polling::Ready(Err(err))` | `Polling::Done`         | `Err(err)`            |
     /// | `Polling::Pending(fut)`    | `Polling::Pending(fut)` | `Ok(Poll::Pending)`   |
@@ -1156,7 +1157,7 @@ impl<T, E, Fut: Future<Output = Result<T, E>>> Polling<Fut> {
     }
 
     /// |         `&mut self`        |     `fut.poll(ctx)`     |     new `self` value    |         return        |
-    /// |----------------------------|-------------------------|-------------------------|-----------------------|
+    /// |:--------------------------:|:-----------------------:|:-----------------------:|:---------------------:|
     /// | `Polling::Ready(Ok(ok))`   |            x            | `Polling::Done`         | `Ok(Poll:Ready(ok))`  |
     /// | `Polling::Ready(Err(err))` |            x            | `Polling::Done`         | `Err(err)`            |
     /// | `Polling::Pending(fut)`    | `Poll::Ready(Ok(ok))`   | `Polling::Done`         | `Ok(Poll::Ready(ok))` |
@@ -1205,7 +1206,7 @@ impl<T, E, Fut: Future<Output = Result<T, E>>> Polling<Fut> {
     }
 
     /// |         `&mut self`        |      `fut.poll(_)`      |     new `self` value    |         return        |
-    /// |----------------------------|-------------------------|-------------------------|-----------------------|
+    /// |:--------------------------:|:-----------------------:|:-----------------------:|:---------------------:|
     /// | `Polling::Ready(Ok(ok))`   |            x            | `Polling::Done`         | `Ok(Poll:Ready(ok))`  |
     /// | `Polling::Ready(Err(err))` |            x            | `Polling::Done`         | `Err(err)`            |
     /// | `Polling::Pending(fut)`    | `Poll::Ready(Ok(ok))`   | `Polling::Done`         | `Ok(Poll::Ready(ok))` |
