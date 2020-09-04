@@ -169,10 +169,11 @@ impl<Fut: Future> FuturePollingExt for Fut {}
 impl<Fut: Future> Polling<Fut> {
     // ===================================== Destructors ==================================== \\
 
-    /// Converts [`Polling::Ready(out)`] into [`Some(out)`], or returns [`None`] otherwise,
-    /// consuming `self`.
-    ///
-    /// See also [`as_ready()`] and [`as_ready_mut()`].
+    /// |         `self`        |    return   |
+    /// |-----------------------|-------------|
+    /// | `Polling::Ready(out)` | `Some(out)` |
+    /// | `Polling::Pending(_)` | `None`      |
+    /// | `Polling::Done`       | `None`      |
     ///
     /// ## Example
     ///
@@ -202,10 +203,11 @@ impl<Fut: Future> Polling<Fut> {
         }
     }
 
-    /// Converts [`Polling::Pending(fut)`] into [`Some(fut)`], or returns [`None`] otherwise,
-    /// consuming `self`.
-    ///
-    /// See also [`as_pending()`] and [`as_pending_mut()`].
+    /// |          `self`         |    return   |
+    /// |-------------------------|-------------|
+    /// | `Polling::Ready(_)`     | `None`      |
+    /// | `Polling::Pending(fut)` | `Some(fut)` |
+    /// | `Polling::Done`         | `None`      |
     ///
     /// ## Example
     ///
@@ -237,12 +239,11 @@ impl<Fut: Future> Polling<Fut> {
         }
     }
 
-    /// Converts [`Polling::Ready(out)`] into [`Poll::Ready(out)`], or returns [`Poll::Pending`]
-    /// otherwise, consuming `self`.
-    ///
-    /// Note that [`Polling::Done`] will also be converted to [`Poll::Pending`].
-    ///
-    /// See also [`as_poll()`] and [`as_poll_mut()`].
+    /// |         `self`        |       return       |
+    /// |-----------------------|--------------------|
+    /// | `Polling::Ready(out)` | `Poll::Ready(out)` |
+    /// | `Polling::Pending(_)` | `Poll::Pending`    |
+    /// | `Polling::Done`       | `Poll::Pending`    |
     ///
     /// ## Example
     ///
@@ -354,9 +355,11 @@ impl<Fut: Future> Polling<Fut> {
         }
     }
 
-    /// Converts [`Polling::Ready(out)`] into [`Some(&out)`], or returns [`None`] otherwise.
-    ///
-    /// See also [`as_ready_mut()`] and [`into_ready()`].
+    /// |        `&self`        |    return    |
+    /// |-----------------------|--------------|
+    /// | `Polling::Ready(out)` | `Some(&out)` |
+    /// | `Polling::Pending(_)` | `None`       |
+    /// | `Polling::Done`       | `None`       |
     ///
     /// ## Example
     ///
@@ -386,9 +389,11 @@ impl<Fut: Future> Polling<Fut> {
         }
     }
 
-    /// Converts [`Polling::Pending(fut)`] into [`Some(&fut)`], or returns [`None`] otherwise.
-    ///
-    /// See also [`as_pending_mut()`] and [`into_pending()`].
+    /// |         `&self`         |    return    |
+    /// |-------------------------|--------------|
+    /// | `Polling::Ready(_)`     | `None`       |
+    /// | `Polling::Pending(fut)` | `Some(&fut)` |
+    /// | `Polling::Done`         | `None`       |
     ///
     /// ## Example
     ///
@@ -418,12 +423,11 @@ impl<Fut: Future> Polling<Fut> {
         }
     }
 
-    /// Converts [`Polling::Ready(out)`] into [`Poll::Ready(&out)`], or returns [`Poll::Pending`]
-    /// otherwise.
-    ///
-    /// Note that [`Polling::Done`] will also be converted to [`Poll::Pending`].
-    ///
-    /// See also [`as_poll_mut()`] and [`into_poll()`].
+    /// |         `&self`       |        return       |
+    /// |-----------------------|---------------------|
+    /// | `Polling::Ready(out)` | `Poll::Ready(&out)` |
+    /// | `Polling::Pending(_)` | `Poll::Pending`     |
+    /// | `Polling::Done`       | `Poll::Pending`     |
     ///
     /// ## Example
     ///
@@ -454,9 +458,11 @@ impl<Fut: Future> Polling<Fut> {
         }
     }
 
-    /// Converts [`Polling::Ready(out)`] into [`Some(&mut out)`], or returns [`None`] otherwise.
-    ///
-    /// See also [`as_ready()`] and [`into_ready()`].
+    /// |      `&mut self`      |      return      |
+    /// |-----------------------|------------------|
+    /// | `Polling::Ready(out)` | `Some(&mut out)` |
+    /// | `Polling::Pending(_)` | `None`           |
+    /// | `Polling::Done`       | `None`           |
     ///
     /// ## Example
     ///
@@ -465,7 +471,12 @@ impl<Fut: Future> Polling<Fut> {
     /// use futures_polling::Polling;
     ///
     /// let mut polling = Polling::<Ready<i32>>::Ready(42);
-    /// *polling.as_ready_mut().unwrap() = 0;
+    /// if let Some(out) = polling.as_ready_mut() {
+    ///     assert_eq!(*out, 42);
+    ///     *out = 0;
+    /// } else {
+    ///     unreachable!();
+    /// }
     /// assert_eq!(polling.as_ready(), Some(&0));
     ///
     /// let mut polling = Polling::<Ready<i32>>::Pending(future::ready(42));
@@ -487,9 +498,11 @@ impl<Fut: Future> Polling<Fut> {
         }
     }
 
-    /// Converts [`Polling::Pending(fut)`] into [`Some(&mut fut)`], or returns [`None`] otherwise.
-    ///
-    /// See also [`as_pending()`] and [`into_pending()`].
+    /// |       `&mut self`       |      return      |
+    /// |-------------------------|------------------|
+    /// | `Polling::Ready(_)`     | `None`           |
+    /// | `Polling::Pending(fut)` | `Some(&mut fut)` |
+    /// | `Polling::Done`         | `None`           |
     ///
     /// ## Example
     ///
@@ -521,12 +534,11 @@ impl<Fut: Future> Polling<Fut> {
         }
     }
 
-    /// Converts [`Polling::Ready(out)`] into [`Poll::Ready(&mut out)`], or returns
-    /// [`Poll::Pending`] otherwise.
-    ///
-    /// Note that [`Polling::Done`] will also be converted to [`Poll::Pending`].
-    ///
-    /// See also [`as_poll()`] and [`into_poll()`].
+    /// |       `&mut self`     |          return         |
+    /// |-----------------------|-------------------------|
+    /// | `Polling::Ready(out)` | `Poll::Ready(&mut out)` |
+    /// | `Polling::Pending(_)` | `Poll::Pending`         |
+    /// | `Polling::Done`       | `Poll::Pending`         |
     ///
     /// ## Example
     ///
@@ -564,6 +576,22 @@ impl<Fut: Future> Polling<Fut> {
 
     // ===================================== Read+Write ===================================== \\
 
+    /// Moves `with` into `&mut self` and returns the previous `self`.
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use futures_lite::future::{self, Ready};
+    /// use futures_polling::Polling;
+    ///
+    /// let mut p1 = Polling::<Ready<i32>>::Ready(42);
+    /// let p2 = Polling::<Ready<i32>>::Ready(24);
+    ///
+    /// let p3 = p1.replace(p2);
+    ///
+    /// assert_eq!(p1.as_ready(), Some(&24));
+    /// assert_eq!(p3.as_ready(), Some(&42));
+    /// ```
     pub fn replace(&mut self, with: Self) -> Self {
         mem::replace(self, with)
     }
@@ -594,8 +622,11 @@ impl<Fut: Future> Polling<Fut> {
         mem::replace(self, Polling::Done)
     }
 
-    /// If `self` is [`Polling::Ready(out)`], replaces it with [`Polling::Done`] and returns
-    /// [`Some(out)`], or returns [`None`] otherwise.
+    /// |       `&mut self`       |     new `self` value    |    return   |
+    /// |-------------------------|-------------------------|-------------|
+    /// | `Polling::Ready(out)`   | `Polling::Done`         | `Some(out)` |
+    /// | `Polling::Pending(fut)` | `Polling::Pending(fut)` | `None`      |
+    /// | `Polling::Done`         | `Polling::Done`         | `None`      |
     ///
     /// ## Example
     ///
@@ -628,8 +659,11 @@ impl<Fut: Future> Polling<Fut> {
         }
     }
 
-    /// If `self` is [`Polling::Pending(fut)`], replaces it with [`Polling::Done`] and returns
-    /// [`Some(fut)`], or returns [`None`] otherwise.
+    /// |       `&mut self`       |    new `self` value   |    return   |
+    /// |-------------------------|-----------------------|-------------|
+    /// | `Polling::Ready(out)`   | `Polling::Ready(out)` | `None`      |
+    /// | `Polling::Pending(fut)` | `Polling::Done`       | `Some(fut)` |
+    /// | `Polling::Done`         | `Polling::Done`       | `None`      |
     ///
     /// ## Example
     ///
@@ -662,8 +696,11 @@ impl<Fut: Future> Polling<Fut> {
         }
     }
 
-    /// If `self` is [`Polling::Ready(out)`], replaces it with [`Polling::Done`] and returns
-    /// [`Some(out)`], or returns [`None`] otherwise.
+    /// |       `&mut self`       |     new `self` value    |       return       |
+    /// |-------------------------|-------------------------|--------------------|
+    /// | `Polling::Ready(out)`   | `Polling::Done`         | `Poll::Ready(out)` |
+    /// | `Polling::Pending(fut)` | `Polling::Pending(fut)` | `Poll::Pending`    |
+    /// | `Polling::Done`         | `Polling::Done`         | `Poll::Pending`    |
     ///
     /// ## Example
     ///
@@ -697,13 +734,12 @@ impl<Fut: Future> Polling<Fut> {
         }
     }
 
-    /// If `self` is [`Polling::Pending(fut)`], [polls] `fut` once and returns its [output], or
-    /// [`Poll::Pending`] otherwise.
-    ///
-    /// If `self` is [`Polling::Ready(out)`], replaces it with [`Polling::Done`] and returns
-    /// [`Poll::Ready(out)`].
-    ///
-    /// Panics if `self` is [`Polling::Done`].
+    /// |       `&mut self`       |    `fut.poll(_)`   |     new `self` value    |       return       |
+    /// |-------------------------|--------------------|-------------------------|--------------------|
+    /// | `Polling::Ready(out)`   |          x         | `Polling::Done`         | `Poll::Ready(out)` |
+    /// | `Polling::Pending(fut)` | `Poll::Ready(out)` | `Polling::Done`         | `Poll::Ready(out)` |
+    /// | `Polling::Pending(fut)` | `Poll::Pending`    | `Polling::Pending(fut)` | `Poll::Pending`    |
+    /// | `Polling::Done`         |          x         |         panic!()        |      panic!()      |
     ///
     /// ## Example
     ///
@@ -735,43 +771,16 @@ impl<Fut: Future> Polling<Fut> {
     /// [`Polling::Ready(out)`]: Polling::Ready
     /// [`Poll::Ready(out)`]: core::task::Poll::Ready
     pub async fn poll_once(&mut self) -> Poll<Fut::Output> {
-        if self.is_ready() {
-            return self.take().into_poll();
-        } else if self.is_done() {
-            panic!("output already extracted");
-        }
-
-        struct PollOnce<'polling, Fut: Future> {
-            polling: &'polling mut Polling<Fut>,
-        }
-
-        impl<Fut: Future> Future for PollOnce<'_, Fut> {
-            type Output = Poll<Fut::Output>;
-
-            fn poll(self: Pin<&mut Self>, ctx: &mut Context) -> Poll<Self::Output> {
-                let this = unsafe { self.get_unchecked_mut() };
-                if let Polling::Pending(fut) = this.polling {
-                    let poll = unsafe { Pin::new_unchecked(fut) }.poll(ctx);
-                    if poll.is_ready() {
-                        this.polling.take();
-                    }
-
-                    Poll::Ready(poll)
-                } else {
-                    unreachable!();
-                }
-            }
-        }
-
-        PollOnce { polling: self }.await
+        self.polling_once().await;
+        self.take_poll()
     }
 
-    /// If `self` is [`Polling::Pending(fut)`], [polls] `fut` once, replacing `self` with
-    /// [`Polling::Ready(out)`] if the future returns [`Poll::Ready(out)`], and returns `self`.
-    ///
-    /// If `self` is [`Polling::Ready(_)`], returns `self`.
-    ///
-    /// Panics if `self` is [`Polling::Done`].
+    /// |       `&mut self`       |    `fut.poll(_)`   |     new `self` value    |
+    /// |-------------------------|--------------------|-------------------------|
+    /// | `Polling::Ready(out)`   |          x         | `Polling::Ready(out)`   |
+    /// | `Polling::Pending(fut)` | `Poll::Ready(out)` | `Polling::Ready(out)`   |
+    /// | `Polling::Pending(fut)` | `Poll::Pending`    | `Polling::Pending(fut)` |
+    /// | `Polling::Done`         |          x         |         panic!()        |
     ///
     /// ## Example
     ///
@@ -832,6 +841,412 @@ impl<Fut: Future> Polling<Fut> {
 
         PollingOnce { polling: self }.await;
         self
+    }
+}
+
+impl<T, E, Fut: Future<Output = Result<T, E>>> Polling<Fut> {
+    // ===================================== Destructors ==================================== \\
+
+    /// |           `self`           |     return     |
+    /// |----------------------------|----------------|
+    /// | `Polling::Ready(Ok(ok))`   | `Ok(Some(ok))` |
+    /// | `Polling::Ready(Err(err))` | `Err(err)`     |
+    /// | `Polling::Pending(_)`      | `Ok(None)`     |
+    /// | `Polling::Done`            | `Ok(None)`     |
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use futures_lite::future::{self, Ready};
+    /// use futures_polling::Polling;
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Ready(Ok(42));
+    /// assert_eq!(polling.try_into_ready(), Ok(Some(42)));
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Ready(Err(42));
+    /// assert_eq!(polling.try_into_ready(), Err(42));
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Ok(42)));
+    /// assert_eq!(polling.try_into_ready(), Ok(None));
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Err(42)));
+    /// assert_eq!(polling.try_into_ready(), Ok(None));
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Done;
+    /// assert_eq!(polling.try_into_ready(), Ok(None));
+    /// ```
+    pub fn try_into_ready(self) -> Result<Option<T>, E> {
+        self.into_ready().transpose()
+    }
+
+    /// |           `self`           |         return        |
+    /// |----------------------------|-----------------------|
+    /// | `Polling::Ready(Ok(ok))`   | `Ok(Poll::Ready(ok))` |
+    /// | `Polling::Ready(Err(err))` | `Err(err)`            |
+    /// | `Polling::Pending(_)`      | `Ok(Poll::Pending)`   |
+    /// | `Polling::Done`            | `Ok(Poll::Pending)`   |
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use core::task::Poll;
+    /// use futures_lite::future::{self, Ready};
+    /// use futures_polling::Polling;
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Ready(Ok(42));
+    /// assert_eq!(polling.try_into_poll(), Ok(Poll::Ready(42)));
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Ready(Err(42));
+    /// assert_eq!(polling.try_into_poll(), Err(42));
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Ok(42)));
+    /// assert_eq!(polling.try_into_poll(), Ok(Poll::Pending));
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Err(42)));
+    /// assert_eq!(polling.try_into_poll(), Ok(Poll::Pending));
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Done;
+    /// assert_eq!(polling.try_into_poll(), Ok(Poll::Pending));
+    /// ```
+    pub fn try_into_poll(self) -> Result<Poll<T>, E> {
+        match self.into_poll() {
+            Poll::Ready(Ok(ok)) => Ok(Poll::Ready(ok)),
+            Poll::Ready(Err(err)) => Err(err),
+            Poll::Pending => Ok(Poll::Pending),
+        }
+    }
+
+    // ======================================== Read ======================================== \\
+
+    /// |          `&self`           |      return     |
+    /// |----------------------------|-----------------|
+    /// | `Polling::Ready(Ok(ok))`   | `Ok(Some(&ok))` |
+    /// | `Polling::Ready(Err(Err))` | `Err(&err)`     |
+    /// | `Polling::Pending(_)`      | `Ok(None)`      |
+    /// | `Polling::Done`            | `Ok(None)`      |
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use futures_lite::future::{self, Ready};
+    /// use futures_polling::Polling;
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Ready(Ok(42));
+    /// assert_eq!(polling.try_as_ready(), Ok(Some(&42)));
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Ready(Err(42));
+    /// assert_eq!(polling.try_as_ready(), Err(&42));
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Ok(42)));
+    /// assert_eq!(polling.try_as_ready(), Ok(None));
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Err(42)));
+    /// assert_eq!(polling.try_as_ready(), Ok(None));
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Done;
+    /// assert_eq!(polling.try_as_ready(), Ok(None));
+    /// ```
+    pub fn try_as_ready(&self) -> Result<Option<&T>, &E> {
+        self.as_ready().map(Result::as_ref).transpose()
+    }
+
+    /// |          `&self`           |         return         |
+    /// |----------------------------|------------------------|
+    /// | `Polling::Ready(Ok(ok))`   | `Ok(Poll::Ready(&ok))` |
+    /// | `Polling::Ready(Err(Err))` | `Err(&mut err)`        |
+    /// | `Polling::Pending(_)`      | `Ok(Poll::Pending)`    |
+    /// | `Polling::Done`            | `Ok(Poll::Pending)`    |
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use core::task::Poll;
+    /// use futures_lite::future::{self, Ready};
+    /// use futures_polling::Polling;
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Ready(Ok(42));
+    /// assert_eq!(polling.try_as_poll(), Ok(Poll::Ready(&42)));
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Ready(Err(42));
+    /// assert_eq!(polling.try_as_poll(), Err(&42));
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Ok(42)));
+    /// assert_eq!(polling.try_as_poll(), Ok(Poll::Pending));
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Err(42)));
+    /// assert_eq!(polling.try_as_poll(), Ok(Poll::Pending));
+    ///
+    /// let polling = Polling::<Ready<Result<i32, i32>>>::Done;
+    /// assert_eq!(polling.try_as_poll(), Ok(Poll::Pending));
+    /// ```
+    pub fn try_as_poll(&self) -> Result<Poll<&T>, &E> {
+        match self.as_poll() {
+            Poll::Ready(Ok(ok)) => Ok(Poll::Ready(ok)),
+            Poll::Ready(Err(err)) => Err(err),
+            Poll::Pending => Ok(Poll::Pending),
+        }
+    }
+
+    /// |        `&mut self`         |        return       |
+    /// |----------------------------|---------------------|
+    /// | `Polling::Ready(Ok(ok))`   | `Ok(Some(&mut ok))` |
+    /// | `Polling::Ready(Err(Err))` | `Err(&mut err)`     |
+    /// | `Polling::Pending(_)`      | `Ok(None)`          |
+    /// | `Polling::Done`            | `Ok(None)`          |
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use futures_lite::future::{self, Ready};
+    /// use futures_polling::Polling;
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Ready(Ok(42));
+    /// if let Ok(Some(ok)) = polling.try_as_ready_mut() {
+    ///     assert_eq!(*ok, 42);
+    ///     *ok = 0;
+    /// } else {
+    ///     unreachable!();
+    /// }
+    /// assert_eq!(polling.try_as_ready(), Ok(Some(&0)));
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Ready(Err(42));
+    /// if let Err(err) = polling.try_as_ready_mut() {
+    ///     assert_eq!(*err, 42);
+    ///     *err = 0;
+    /// } else {
+    ///     unreachable!();
+    /// }
+    /// assert_eq!(polling.try_as_ready(), Err(&0));
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Ok(42)));
+    /// assert_eq!(polling.try_as_ready_mut(), Ok(None));
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Err(42)));
+    /// assert_eq!(polling.try_as_ready_mut(), Ok(None));
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Done;
+    /// assert_eq!(polling.try_as_ready_mut(), Ok(None));
+    /// ```
+    pub fn try_as_ready_mut(&mut self) -> Result<Option<&mut T>, &mut E> {
+        self.as_ready_mut().map(Result::as_mut).transpose()
+    }
+
+    /// |        `&mut self`         |           return           |
+    /// |----------------------------|----------------------------|
+    /// | `Polling::Ready(Ok(ok))`   | `Ok(Poll::Ready(&mut ok))` |
+    /// | `Polling::Ready(Err(Err))` | `Err(&mut err)`            |
+    /// | `Polling::Pending(_)`      | `Ok(Poll::Pending)`        |
+    /// | `Polling::Done`            | `Ok(Poll::Pending)`        |
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use core::task::Poll;
+    /// use futures_lite::future::{self, Ready};
+    /// use futures_polling::Polling;
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Ready(Ok(42));
+    /// if let Ok(Poll::Ready(ok)) = polling.try_as_poll_mut() {
+    ///     assert_eq!(*ok, 42);
+    ///     *ok = 0;
+    /// } else {
+    ///     unreachable!();
+    /// }
+    /// assert_eq!(polling.try_as_poll(), Ok(Poll::Ready(&0)));
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Ready(Err(42));
+    /// if let Err(err) = polling.try_as_poll_mut() {
+    ///     assert_eq!(*err, 42);
+    ///     *err = 0;
+    /// } else {
+    ///     unreachable!();
+    /// }
+    /// assert_eq!(polling.try_as_poll(), Err(&0));
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Ok(42)));
+    /// assert_eq!(polling.try_as_poll_mut(), Ok(Poll::Pending));
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Err(42)));
+    /// assert_eq!(polling.try_as_poll_mut(), Ok(Poll::Pending));
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Done;
+    /// assert_eq!(polling.try_as_poll_mut(), Ok(Poll::Pending));
+    /// ```
+    pub fn try_as_poll_mut(&mut self) -> Result<Poll<&mut T>, &mut E> {
+        match self.as_poll_mut() {
+            Poll::Ready(Ok(ok)) => Ok(Poll::Ready(ok)),
+            Poll::Ready(Err(err)) => Err(err),
+            Poll::Pending => Ok(Poll::Pending),
+        }
+    }
+
+    // ===================================== Read+Write ===================================== \\
+
+    /// |         `&mut self`        |     new `self` value    |     return     |
+    /// |----------------------------|-------------------------|----------------|
+    /// | `Polling::Ready(Ok(ok))`   | `Polling::Done`         | `Ok(Some(ok))` |
+    /// | `Polling::Ready(Err(err))` | `Polling::Done`         | `Err(err)`     |
+    /// | `Polling::Pending(fut)`    | `Polling::Pending(fut)` | `Ok(None)`     |
+    /// | `Polling::Done`            | `Polling::Done`         | `Ok(None)`     |
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use futures_lite::future::{self, Ready};
+    /// use futures_polling::Polling;
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Ready(Ok(42));
+    /// assert_eq!(polling.try_take_ready(), Ok(Some(42)));
+    /// assert_eq!(polling.try_into_ready(), Ok(None));
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Ready(Err(42));
+    /// assert_eq!(polling.try_take_ready(), Err(42));
+    /// assert_eq!(polling.try_into_ready(), Ok(None));
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Ok(42)));
+    /// assert_eq!(polling.try_take_ready(), Ok(None));
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Err(42)));
+    /// assert_eq!(polling.try_take_ready(), Ok(None));
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Done;
+    /// assert_eq!(polling.try_take_ready(), Ok(None));
+    /// ```
+    pub fn try_take_ready(&mut self) -> Result<Option<T>, E> {
+        self.take_ready().transpose()
+    }
+
+    /// |         `&mut self`        |     new `self` value    |         return        |
+    /// |----------------------------|-------------------------|-----------------------|
+    /// | `Polling::Ready(Ok(ok))`   | `Polling::Done`         | `Ok(Poll::Ready(ok))` |
+    /// | `Polling::Ready(Err(err))` | `Polling::Done`         | `Err(err)`            |
+    /// | `Polling::Pending(fut)`    | `Polling::Pending(fut)` | `Ok(Poll::Pending)`   |
+    /// | `Polling::Done`            | `Polling::Done`         | `Ok(Poll::Pending)`   |
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use core::task::Poll;
+    /// use futures_lite::future::{self, Ready};
+    /// use futures_polling::Polling;
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Ready(Ok(42));
+    /// assert_eq!(polling.try_take_poll(), Ok(Poll::Ready(42)));
+    /// assert_eq!(polling.try_into_ready(), Ok(None));
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Ready(Err(42));
+    /// assert_eq!(polling.try_take_poll(), Err(42));
+    /// assert_eq!(polling.try_into_ready(), Ok(None));
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Ok(42)));
+    /// assert_eq!(polling.try_take_poll(), Ok(Poll::Pending));
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Err(42)));
+    /// assert_eq!(polling.try_take_poll(), Ok(Poll::Pending));
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Done;
+    /// assert_eq!(polling.try_take_poll(), Ok(Poll::Pending));
+    /// ```
+    pub fn try_take_poll(&mut self) -> Result<Poll<T>, E> {
+        match self.take_poll() {
+            Poll::Ready(Ok(ok)) => Ok(Poll::Ready(ok)),
+            Poll::Ready(Err(err)) => Err(err),
+            Poll::Pending => Ok(Poll::Pending),
+        }
+    }
+
+    /// |         `&mut self`        |     `fut.poll(ctx)`     |     new `self` value    |         return        |
+    /// |----------------------------|-------------------------|-------------------------|-----------------------|
+    /// | `Polling::Ready(Ok(ok))`   |            x            | `Polling::Done`         | `Ok(Poll:Ready(ok))`  |
+    /// | `Polling::Ready(Err(err))` |            x            | `Polling::Done`         | `Err(err)`            |
+    /// | `Polling::Pending(fut)`    | `Poll::Ready(Ok(ok))`   | `Polling::Done`         | `Ok(Poll::Ready(ok))` |
+    /// | `Polling::Pending(fut)`    | `Poll::Ready(Err(err))` | `Polling::Done`         | `Err(err)`            |
+    /// | `Polling::Pending(fut)`    | `Poll::Pending`         | `Polling::Pending(fut)` | `Ok(Poll::Pending)`   |
+    /// | `Polling::Done`            |            x            |         panic!()        |        panic!()       |
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use core::pin::Pin;
+    /// use core::task::Poll;
+    /// use futures_lite::future::{self, Pending, Ready};
+    /// use futures_polling::Polling;
+    ///
+    /// # future::block_on(future::poll_fn(|ctx| {
+    /// #
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Ready(Ok(42));
+    /// assert_eq!(Pin::new(&mut polling).try_poll(ctx), Ok(Poll::Ready(42)));
+    /// assert_eq!(polling.is_done(), true);
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Ready(Err(42));
+    /// assert_eq!(Pin::new(&mut polling).try_poll(ctx), Err(42));
+    /// assert_eq!(polling.is_done(), true);
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Ok(42)));
+    /// assert_eq!(Pin::new(&mut polling).try_poll(ctx), Ok(Poll::Ready(42)));
+    /// assert_eq!(polling.is_done(), true);
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Err(42)));
+    /// assert_eq!(Pin::new(&mut polling).try_poll(ctx), Err(42));
+    /// assert_eq!(polling.is_done(), true);
+    ///
+    /// let mut polling = Polling::<Pending<Result<i32, i32>>>::Pending(future::pending());
+    /// assert_eq!(Pin::new(&mut polling).try_poll(ctx), Ok(Poll::Pending));
+    /// assert_eq!(polling.is_done(), false);
+    /// #
+    /// # Poll::Ready(()) }));
+    /// ```
+    pub fn try_poll(self: Pin<&mut Self>, ctx: &mut Context) -> Result<Poll<T>, E> {
+        match self.poll(ctx) {
+            Poll::Ready(Ok(ok)) => Ok(Poll::Ready(ok)),
+            Poll::Ready(Err(err)) => Err(err),
+            Poll::Pending => Ok(Poll::Pending),
+        }
+    }
+
+    /// |         `&mut self`        |      `fut.poll(_)`      |     new `self` value    |         return        |
+    /// |----------------------------|-------------------------|-------------------------|-----------------------|
+    /// | `Polling::Ready(Ok(ok))`   |            x            | `Polling::Done`         | `Ok(Poll:Ready(ok))`  |
+    /// | `Polling::Ready(Err(err))` |            x            | `Polling::Done`         | `Err(err)`            |
+    /// | `Polling::Pending(fut)`    | `Poll::Ready(Ok(ok))`   | `Polling::Done`         | `Ok(Poll::Ready(ok))` |
+    /// | `Polling::Pending(fut)`    | `Poll::Ready(Err(err))` | `Polling::Done`         | `Err(err)`            |
+    /// | `Polling::Pending(fut)`    | `Poll::Pending`         | `Polling::Pending(fut)` | `Ok(Poll::Pending)`   |
+    /// | `Polling::Done`            |            x            |         panic!()        |        panic!()       |
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use core::task::Poll;
+    /// use futures_lite::future::{self, Pending, Ready};
+    /// use futures_polling::Polling;
+    ///
+    /// # future::block_on(async {
+    /// #
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Ready(Ok(42));
+    /// assert_eq!(polling.try_poll_once().await, Ok(Poll::Ready(42)));
+    /// assert_eq!(polling.is_done(), true);
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Ready(Err(42));
+    /// assert_eq!(polling.try_poll_once().await, Err(42));
+    /// assert_eq!(polling.is_done(), true);
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Ok(42)));
+    /// assert_eq!(polling.try_poll_once().await, Ok(Poll::Ready(42)));
+    /// assert_eq!(polling.is_done(), true);
+    ///
+    /// let mut polling = Polling::<Ready<Result<i32, i32>>>::Pending(future::ready(Err(42)));
+    /// assert_eq!(polling.try_poll_once().await, Err(42));
+    /// assert_eq!(polling.is_done(), true);
+    ///
+    /// let mut polling = Polling::<Pending<Result<i32, i32>>>::Pending(future::pending());
+    /// assert_eq!(polling.try_poll_once().await, Ok(Poll::Pending));
+    /// assert_eq!(polling.is_done(), false);
+    /// #
+    /// # });
+    /// ```
+    pub async fn try_poll_once(&mut self) -> Result<Poll<T>, E> {
+        self.polling_once().await;
+        self.try_take_poll()
     }
 }
 
